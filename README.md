@@ -106,6 +106,7 @@ When creating an instance of SubtitleOctopus, you can set the following options:
 - `fonts`: An array of links to the fonts used in the subtitle. (Optional)
 - `availableFonts`: Object with all available fonts - Key is font name in lower
   case, value is link: `{"arial": "/font1.ttf"}` (Optional)
+- `defaultFont`: String of url for default font to replace one embeded in .data file (Optional)
 - `timeOffset`: The amount of time the subtitles should be offset from the
   video. (Default: `0`)
 - `onReady`: Function that's called when SubtitlesOctopus is ready. (Optional)

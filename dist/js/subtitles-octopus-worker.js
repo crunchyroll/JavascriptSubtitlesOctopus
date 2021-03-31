@@ -123,6 +123,11 @@ Module.expectedDataFileDownloads++;
     }
    };
    var files = metadata["files"];
+   if (self.defaultFont) {
+    // remove the default.woff2 file from list since we will overwrite
+    files.shift();
+    Module["FS_createPreloadedFile"]("/assets/default.woff2", null, self.defaultFont, true, true, () => {}, () => {});
+   }
    for (var i = 0; i < files.length; ++i) {
     new DataRequest(files[i]["start"], files[i]["end"], files[i]["audio"]).open("GET", files[i]["filename"]);
    }
@@ -132,7 +137,6 @@ Module.expectedDataFileDownloads++;
     assert(arrayBuffer instanceof ArrayBuffer, "bad input to processPackageData");
     var byteArray = new Uint8Array(arrayBuffer);
     DataRequest.prototype.byteArray = byteArray;
-    var files = metadata["files"];
     for (var i = 0; i < files.length; ++i) {
      DataRequest.prototype.requests[files[i].filename].onload();
     }
@@ -2437,6 +2441,10 @@ function createWasm() {
      err("falling back to ArrayBuffer instantiation");
      instantiateArrayBuffer(receiveInstantiatedSource);
     });
+   }).catch(function(error) {
+     err("Could not download wasm file: " + error);
+     err("falling back to ArrayBuffer instantiation");
+     return instantiateArrayBuffer(receiveInstantiatedSource);
    });
   } else {
    return instantiateArrayBuffer(receiveInstantiatedSource);
@@ -10036,6 +10044,7 @@ function onMessageFromMainEmscriptenThread(message) {
    self.subUrl = message.data.subUrl;
    self.subContent = message.data.subContent;
    self.fontFiles = message.data.fonts;
+   self.defaultFont = message.data.defaultFont;
    self.fastRenderMode = message.data.fastRender;
    self.availableFonts = message.data.availableFonts;
    self.debug = message.data.debug;
@@ -10051,6 +10060,9 @@ function onMessageFromMainEmscriptenThread(message) {
     }
    }
    removeRunDependency("worker-init");
+   postMessage({
+    target: "ready",
+   });
    break;
   }
 
